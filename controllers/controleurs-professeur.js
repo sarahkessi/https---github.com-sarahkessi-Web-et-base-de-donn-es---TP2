@@ -86,22 +86,65 @@ const supprimerProfesseur = async (requete, reponse, next) => {
     }
 
     if (!professeur) {
-        return next (new HttpErreur("Impossible de trouver le profsseur", 404));
+        return next (new HttpErreur("Impossible de trouver le professeur", 404));
     }
 
     try {
-        await professeur.remove();
-        await professeur.save();
+       professeur.deleteOne({id: professeurId});
     } catch {
         return next (
             new HttpErreur("Erreur lors de la suppression du professeur", 500)
         );
     }
     reponse.status(200).json({message: "Professeur supprimé"});
-}
+};
+
+const ajouterCours = async (requete, reponse, next) => {
+
+  const { titre, description, adresse, createur } = requete.body;
+  const nouvellePlace = new Place({
+    titre,
+    description,
+    adresse,
+    image:
+      "https://www.cmontmorency.qc.ca/wp-content/uploads/images/college/Porte_1_juin_2017-1024x683.jpg",
+    createur,
+  });
+
+  let utilisateur;
+
+  try {
+    utilisateur = await Utilisateur.findById(createur);
+    
+  } catch {
+    
+    return next(new HttpErreur("Création de place échouée", 500));
+  }
+
+  if (!utilisateur) {
+    return next(new HttpErreur("Utilisateur non trouvé selon le id"), 504);
+  }
+
+  try {
+
+    
+    await nouvellePlace.save();
+    //Ce n'est pas le push Javascript, c'est le push de mongoose qui récupe le id de la place et l'ajout au tableau de l'utilisateur
+    utilisateur.places.push(nouvellePlace);
+    await utilisateur.save();
+    //Une transaction ne crée pas automatiquement de collection dans mongodb, même si on a un modèle
+    //Il faut la créer manuellement dans Atlas ou Compass
+  } catch (err) {
+    const erreur = new HttpErreur("Création de place échouée", 500);
+    return next(erreur);
+  }
+  reponse.status(201).json({ place: nouvellePlace });
+};
+
 
 
 exports.updateProfesseur = updateProfesseur;
 exports.getProfesseurById = getProfesseurById;
 exports.nouveauProfesseur = nouveauProfesseur;
 exports.supprimerProfesseur = supprimerProfesseur;
+exports.ajouterCours = ajouterCours;
