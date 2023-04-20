@@ -6,17 +6,17 @@ mongoose.set("strictQuery", true);
 const coursRoute = require("./routes/cours-routes");
 const professeursRoute = require("./routes/professeurs-routes");
 const etudiantsRoute = require("./routes/etudiants-routes");
-const HttpErreur = require("/models/http-erreur");
+const HttpErreur = require("./models/http-erreur");
 
 const app = express();
 
 app.use(bodyParser.json());
 
 app.use("/api/cours", coursRoute);
-app.use("api/professeurs", professeursRoute);
-app.use("api/etudiants", etudiantsRoute);
+app.use("/api/professeurs", professeursRoute);
+app.use("/api/etudiants", etudiantsRoute);
 
-app.use((error, requete, reponse, next) => {
+app.use((requete, reponse, next) => {
   return next(new HttpErreur("Route non trouvée", 404));
 });
 
@@ -31,13 +31,11 @@ app.use((error, requete, reponse, next) => {
 });
 
 mongoose
-.connect("mongodb://127.0.0.1:27017/")
-.then(() => {
-  app.listen(5000)
-  console.log("Connexion à la base de données réussie");
-})
-.catch(erreur => {
-  console.log(erreur);
-});
-
-app.listen(5000);
+  .connect("mongodb://127.0.0.1:27017/")
+  .then(() => {
+    app.listen(5000);
+    console.log("Connexion à la base de données réussie");
+  })
+  .catch((erreur) => {
+    console.log(erreur);
+  });

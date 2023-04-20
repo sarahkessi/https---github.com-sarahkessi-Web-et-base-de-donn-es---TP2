@@ -5,10 +5,10 @@ const router = express.Router();
 
 router.get("/:coursId", controleursCours.getCoursById);
 
-router.post('/', controleursCours.creerCours);
+router.post('/nouveauCours', controleursCours.creerCours);
 
-router.patch("/:coursId", controleursCours.modifier);
+router.patch("/:coursId", controleursCours.updateCours);
 
-router.delete("/:coursId", controleursCours.supprimer);
+router.delete("/:coursId", controleursCours.supprimerCours);
 
 module.exports = router;
